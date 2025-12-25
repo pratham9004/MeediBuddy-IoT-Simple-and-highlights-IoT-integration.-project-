@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own profile data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Users can read/write their own reminders
+    match /reminders/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Authenticated users can read/write IoT status for real-time updates
+    match /iotStatus/{document} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Users can read/write their own weekly stats
+    match /weekly_stats/{document} {
+      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}
